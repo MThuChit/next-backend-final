@@ -2,14 +2,9 @@ import { getClientPromise } from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { ObjectId } from "mongodb";
+import corsHeaders from "@/lib/cors";
 
 const JWT_SECRET = process.env.JWT_SECRET || "mydefaulyjwtsecret";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
 
 async function getAuthUser(req) {
   const token = req.cookies.get("token")?.value;

@@ -1,13 +1,7 @@
 import { getClientPromise } from "@/lib/mongodb";
 import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
-
-// Using a standard headers object for simplicity, ensure this matches your cors.js
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
+import corsHeaders from "@/lib/cors";
 
 const JWT_SECRET = process.env.JWT_SECRET || "mydefaulyjwtsecret";
 
