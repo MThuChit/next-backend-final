@@ -1,29 +1,28 @@
-import { ensureIndexes } from "@/lib/ensureIndexes";
+import { getClientPromise } from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 
-export async function GET(request) {
+export async function GET(req) {
+  const { searchParams } = new URL(req.url);
+  const pass = searchParams.get("pass");
 
-  const { searchParams } = new URL(request.url);
-  const challenge = searchParams.get("pass") ?? false;
-
-  if (!challenge) {
-    return NextResponse.json({
-      message: "Invalid usage"
-    }, {
-      status: 400
-    })
+  // Simple security check for initial setup
+  if (pass !== "adminsetuppass") {
+    return NextResponse.json({ message: "Invalid setup password" }, { status: 403 });
   }
 
-  const pass = process.env.ADMIN_SETUP_PASS;
+  try {
+    const client = await getClientPromise();
+    const db = client.db("library_db");
 
-  if (challenge != pass) {
-    return NextResponse.json({
-      message: "Admin password incorrect"
-    }, {
-      status: 400
-    })
+    // Clear existing and insert required test users
+    await db.collection("users").deleteMany({});
+    await db.collection("users").insertMany([
+      { email: "admin@test.com", password: "admin123", role: "ADMIN", name: "Admin User" },
+      { email: "user@test.com", password: "user123", role: "USER", name: "Normal User" }
+    ]);
+
+    return NextResponse.json({ message: "Test users initialized successfully" });
+  } catch (error) {
+    return NextResponse.json({ message: error.message }, { status: 500 });
   }
-
-  const result = await ensureIndexes();
-  return NextResponse.json({ message: "Indexes ensured" });
 }
